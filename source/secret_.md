@@ -5,3 +5,4 @@ To use this server please create a `secret.ts` which exports the following value
 - sessionSecret: string - A random secret string
 - linkHost: string - Hostname for the link
 - projRoot: string - Absolute path to the project folder
+- allowUA: RegExp - A regex that matches all allowed user agents

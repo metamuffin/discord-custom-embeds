@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser"
 import session from "express-session"
 import bodyParser from "body-parser"
 
-import { sessionSecret, linkHost, projRoot } from "./secret"
+import { sessionSecret, linkHost, projRoot, allowUA } from "./secret"
 
 const app = Express()
 
@@ -31,13 +31,18 @@ async function main(){
             <title>${r.title}</title>
             <meta name="theme-color" content="${r.color}" />
             <meta name="description" content="${r.description}" />
-            </head><body>Hier ist nichts!</body></html>`)
+            </head><body><p>Hier ist nichts!</p>
+            <script>
+                window.document.head.innerHTML = "";
+                window.document.title = "Hier ist nichts";
+                document.body.removeChild(document.body.children[1]);
+            </script></body></html>`)
     })
 
     app.use((req: Request, res: Response, next) => {
         console.log(`UA: ${req.headers["user-agent"]}`);  
         
-        if (req.headers["user-agent"]?.search(/(linux|discordbot)/ig) == -1) {
+        if (req.headers["user-agent"]?.search(allowUA) == -1) {
             res.send("Nicht für dich, kek.")
         } else {
             next();
