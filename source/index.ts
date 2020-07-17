@@ -21,6 +21,29 @@ async function main(){
     const db = await MongoClient.connect("mongodb://localhost:27017/")
     const dbo = db.db("discord_embed")
 
+
+    app.get("/e/:id", async (req: Request, res: Response) => {
+        var r = await dbo.collection("embeds").findOne({id: req.params.id})
+        if (!r) {
+            r = {title: "Embed not found", description: "https://www.github.com/MetaMuffin/discord-custom-embeds"}
+        }
+        res.send(`<!doctype html><html><head>
+            <title>${r.title}</title>
+            <meta name="theme-color" content="${r.color}" />
+            <meta name="description" content="${r.description}" />
+            </head><body>Hier ist nichts!</body></html>`)
+    })
+
+    app.use((req: Request, res: Response, next) => {
+        console.log(`UA: ${req.headers["user-agent"]}`);  
+        
+        if (req.headers["user-agent"]?.search(/(linux|discordbot)/ig) == -1) {
+            res.send("Nicht für dich, kek.")
+        } else {
+            next();
+        }
+    })
+
     app.use(cookieParser())
     app.use(session({secret: sessionSecret}))
     app.use(bodyParser.json())
@@ -42,14 +65,6 @@ async function main(){
         })
         var link = `http://${linkHost}/e/${idg}`
         res.send(`<!doctype html><html><head></head><body><p id="link">${link}</p></body></html>`)
-    })
-
-    app.get("/e/:id", async (req: Request, res: Response) => {
-        var r = await dbo.collection("embeds").findOne({id: req.params.id})
-        if (!r) {
-            r = {title: "Embed not found", description: "https://www.github.com/MetaMuffin/discord-custom-embeds"}
-        }
-        res.send(`<!doctype html><html><head><title>${r.title}</title><meta name="description" content="${r.description}" /></head><body>Hier ist nichts!</body></html>`)
     })
     
     app.listen(5565,() => {
